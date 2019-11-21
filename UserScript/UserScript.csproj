@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{549EDFFA-2C09-42CF-944D-4124BA9D0463}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>UserScript</RootNamespace>
+    <AssemblyName>UserScript</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Alg_PowConvert_dB">
+      <HintPath>Dependencies\Alg_PowConvert_dB.dll</HintPath>
+    </Reference>
+    <Reference Include="Basler.Pylon, Version=1.1.0.0, Culture=neutral, PublicKeyToken=e389355f398382ab, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\Basler.Pylon.dll</HintPath>
+    </Reference>
+    <Reference Include="CLCamera">
+      <HintPath>Dependencies\CLCamera.dll</HintPath>
+    </Reference>
+    <Reference Include="CyUSB">
+      <HintPath>Dependencies\CyUSB.dll</HintPath>
+    </Reference>
+    <Reference Include="halcondotnet">
+      <HintPath>Dependencies\halcondotnet.dll</HintPath>
+    </Reference>
+    <Reference Include="HDisplay">
+      <HintPath>Dependencies\HDisplay.dll</HintPath>
+    </Reference>
+    <Reference Include="Inst_40GQSFP">
+      <HintPath>Dependencies\Inst_40GQSFP.dll</HintPath>
+    </Reference>
+    <Reference Include="Inst_ABB_HostBoard">
+      <HintPath>Dependencies\Inst_ABB_HostBoard.dll</HintPath>
+    </Reference>
+    <Reference Include="MvCameraControl.Net">
+      <HintPath>Dependencies\MvCameraControl.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ViewROI">
+      <HintPath>Dependencies\ViewROI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AAB_HostBoard.cs" />
+    <Compile Include="BitMapZd.cs" />
+    <Compile Include="Connected Services\CamRAC\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Connected Services\Service\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="DO_NOT_CHANGE.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserProc.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\CamRAC\service.wsdl" />
+    <None Include="Connected Services\CamRAC\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\CamRAC\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\CamRAC\System.Drawing.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\Service\service.wsdl" />
+    <None Include="Connected Services\Service\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\Service\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\Service\System.Drawing.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\Service\SystemServiceContract.Core.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\Service\UserScript.Service.SSC_IOStatusEnum.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Service\UserScript.Service.SSC_PMRangeEnum.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Service\UserScript.Service.SSC_PMUnitEnum.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Properties\DataSources\System.Drawing.Bitmap.datasource" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\Service\configuration91.svcinfo" />
+    <None Include="Connected Services\Service\configuration.svcinfo" />
+    <None Include="Connected Services\Service\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Connected Services\CamRAC\configuration91.svcinfo" />
+    <None Include="Connected Services\CamRAC\configuration.svcinfo" />
+    <None Include="Connected Services\CamRAC\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\CamRAC\" />
+    <WCFMetadataStorage Include="Connected Services\Service\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Dependencies\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

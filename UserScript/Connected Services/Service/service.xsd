@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" />
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/System.Drawing" />
+  <xs:element name="__SSC_LogInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_LogInfoResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_LogError">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_LogErrorResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_LogWarn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_LogWarnResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Connect">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_ConnectResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Disonnect">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DisonnectResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_SequenceStop">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_SequenceStopResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_MeasurableDevice_Read">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_MeasurableDevice_ReadResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_MeasurableDevice_ReadResult" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_MoveAxis">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Axis" nillable="true" type="xs:string" />
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Mode" type="q1:SSC_MoveMode" />
+        <xs:element minOccurs="0" name="Speed" type="xs:int" />
+        <xs:element minOccurs="0" name="Distance" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_MoveAxisResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_MoveToPresetPosition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MotionComp" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Profile" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_MoveToPresetPositionResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_GetAbsPosition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Axis" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_GetAbsPositionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_GetAbsPositionResult" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_ShowImage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/System.Drawing" minOccurs="0" name="Image" nillable="true" type="q2:Bitmap" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_ShowImageResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_ReadIO">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="IO" nillable="true" type="xs:string" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="IOType" type="q3:SSC_IOTypeEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_ReadIOResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_ReadIOResult" type="q4:SSC_IOStatusEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_WriteIO">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="IO" nillable="true" type="xs:string" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Status" type="q5:SSC_IOStatusEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_WriteIOResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoBlindSearch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Profile" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoBlindSearchResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoBlindSearchResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoBlindSearchWithParam">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="HorizontalAxis" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="VerticalAxis" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Interval" type="xs:double" />
+        <xs:element minOccurs="0" name="Range" type="xs:double" />
+        <xs:element minOccurs="0" name="Speed" type="xs:int" />
+        <xs:element minOccurs="0" name="AnalogCaptureChannel" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoBlindSearchWithParamResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="DoBlindSearchWithParamResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoFast1D">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Axis" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Interval" type="xs:double" />
+        <xs:element minOccurs="0" name="Range" type="xs:double" />
+        <xs:element minOccurs="0" name="Speed" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoFast1DResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoFast1DResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoFastND">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Profile" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoFastNDResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoFastNDResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoFastAngleTuning">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Profile" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoFastAngleTuningResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoFastAngleTuningResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoFastAngleTuningWithParam">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="LinearAxis" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="LinearInterval" type="xs:double" />
+        <xs:element minOccurs="0" name="LinearRange" type="xs:double" />
+        <xs:element minOccurs="0" name="Speed" type="xs:int" />
+        <xs:element minOccurs="0" name="Pitch" type="xs:double" />
+        <xs:element minOccurs="0" name="AnalogCaptureChannel1" type="xs:int" />
+        <xs:element minOccurs="0" name="AnalogCaptureChannel2" type="xs:int" />
+        <xs:element minOccurs="0" name="RotatingAxis" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="TuningFactor" type="xs:double" />
+        <xs:element minOccurs="0" name="RotatingSpeed" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoFastAngleTuningWithParamResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="DoFastAngleTuningWithParamResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoProfile1D">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Axis" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Interval" type="xs:double" />
+        <xs:element minOccurs="0" name="Range" type="xs:double" />
+        <xs:element minOccurs="0" name="Speed" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoProfile1DResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoProfile1DResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoProfileND">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Profile" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoProfileNDResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoProfileNDResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoAngleTuning">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Profile" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_DoAngleTuningResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_DoAngleTuningResult" nillable="true" type="xs:anyType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_SetUnit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Unit" type="q6:SSC_PMUnitEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_SetUnitResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_GetUnit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_GetUnitResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_Powermeter_GetUnitResult" type="q7:SSC_PMUnitEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_SetRange">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Range" type="q8:SSC_PMRangeEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_SetRangeResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_GetRange">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_GetRangeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_Powermeter_GetRangeResult" type="q9:SSC_PMRangeEnum" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_ZeroOutput">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_ZeroOutputResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_Read">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_Powermeter_ReadResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="__SSC_Powermeter_ReadResult" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

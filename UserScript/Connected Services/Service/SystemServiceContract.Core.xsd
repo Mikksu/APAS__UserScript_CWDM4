@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:simpleType name="SSC_MoveMode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="REL" />
+      <xs:enumeration value="ABS" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SSC_MoveMode" nillable="true" type="tns:SSC_MoveMode" />
+  <xs:simpleType name="SSC_IOTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Input" />
+      <xs:enumeration value="Output" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SSC_IOTypeEnum" nillable="true" type="tns:SSC_IOTypeEnum" />
+  <xs:simpleType name="SSC_IOStatusEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Disabled" />
+      <xs:enumeration value="Enabled" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SSC_IOStatusEnum" nillable="true" type="tns:SSC_IOStatusEnum" />
+  <xs:simpleType name="SSC_PMUnitEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dBm" />
+      <xs:enumeration value="dB" />
+      <xs:enumeration value="mW" />
+      <xs:enumeration value="mA" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SSC_PMUnitEnum" nillable="true" type="tns:SSC_PMUnitEnum" />
+  <xs:simpleType name="SSC_PMRangeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Range1">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Range2">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Range3">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">3</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Range4">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Range5">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">5</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Range6">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">6</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SSC_PMRangeEnum" nillable="true" type="tns:SSC_PMRangeEnum" />
+</xs:schema>
