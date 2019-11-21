@@ -135,7 +135,7 @@ namespace UserScript
                     Service.__SSC_LogInfo(message);
 
                     string alignmentProfile = "x&y_roughScan";
-                    Service.__SSC_LogInfo($"执行Profile-ND，参数 {alignmentProfile}...");
+                    Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]...");
                     Service.__SSC_DoProfileND(alignmentProfile);
 
                     cycles = 0;
@@ -143,11 +143,13 @@ namespace UserScript
                     while (cycles < 5)
                     {
                         alignmentProfile = "x&y_detailScan";
-                        Service.__SSC_LogInfo($"执行Profile-ND，参数 {alignmentProfile}...");
+                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles + 1}/5...");
                         Service.__SSC_DoProfileND(alignmentProfile);
 
                         var resp = Service.__SSC_MeasurableDevice_Read("MercuryHostBoard,0");
-                        if (resp > 2.6)
+                        Service.__SSC_LogInfo($"响应度：{resp}");
+                        
+                        if (resp > 2.8)
                         {
                             goodAlign = true;
                             break;
@@ -166,8 +168,9 @@ namespace UserScript
                     while (cycles < 5)
                     {
                         alignmentProfile = "mercury";
-                        Service.__SSC_LogInfo($"执行Angle Tuning，参数 {alignmentProfile}...");
+                        Service.__SSC_LogInfo($"执行Angle Tuning，参数[{alignmentProfile}]，Cycle {cycles + 1}/5...");
                         var diff = (double)Service.__SSC_DoAngleTuning(alignmentProfile);
+                        Service.__SSC_LogInfo($"1-4通道峰值位置误差：{diff.ToString("F3")}um");
 
                         if (diff < 1)
                         {
