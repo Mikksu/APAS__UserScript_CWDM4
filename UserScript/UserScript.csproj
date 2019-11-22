@@ -90,6 +90,7 @@
     </Compile>
     <Compile Include="DO_NOT_CHANGE.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Conditions.cs" />
     <Compile Include="UserProc.cs" />
   </ItemGroup>
   <ItemGroup>

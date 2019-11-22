@@ -7,12 +7,15 @@ using System;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using UserScript.CamRAC;
+using System.Linq;
 
 namespace UserScript
 {
     partial class APAS_UserScript
     {
         #region Variables
+
+        const string EQUIP_CAPTION = "MercuryHostBoard";
 
         static CameraBase camTop, camDown, camSide, camPd;
 
@@ -59,6 +62,7 @@ namespace UserScript
             string message = "";
             int cycles = 0;
             bool goodAlign = false;
+            string alignmentProfile = "";
 
             double awgX = 0, awgY = 0, awgAngle = 0;
             double pdX = 0, pdY = 0, pdAngle = 0;
@@ -81,10 +85,16 @@ namespace UserScript
 
                     Service.__SSC_LogInfo("识别AWG角度...");
                     var image1 = Camera.GrabOneFrame("AWG");
+
                     HObject awgImage;
                     Bitmap2HObjectBpp32(image1, out awgImage);
                     GetAwgOffset(awgImage, ref awgX, ref awgY, ref awgAngle, out Bitmap awgimage);
                     Service.__SSC_ShowImage(awgimage);
+                    awgImage.Dispose();
+                    awgimage.Dispose();
+                    awgImage = null;
+                    awgimage = null;
+
                     Service.__SSC_MoveAxis("CWDM4", "R", SSC_MoveMode.REL, 100, -awgAngle);
                     Thread.Sleep(100);
 
@@ -93,10 +103,15 @@ namespace UserScript
 
                     Service.__SSC_LogInfo("识别PA Array角度...");
                     var image2 = Camera.GrabOneFrame("Left");
+
                     HObject pdImage;
                     Bitmap2HObjectBpp32(image2, out pdImage);
                     GetPdOffset(pdImage, ref pdX, ref pdY, ref pdAngle, out Bitmap pdimage);
                     Service.__SSC_ShowImage(pdimage);
+                    pdImage.Dispose();
+                    pdimage.Dispose();
+                    pdImage = null;
+                    pdimage = null;
 
                     offsetX = -awgX + pdX;
                     offsetY = -awgY + pdY;
@@ -122,10 +137,10 @@ namespace UserScript
 
                     int xmaxpath = 0;
                     double[] data = new double[4];
-                    data[0] = Service.__SSC_MeasurableDevice_Read("MercuryHostBoard,0");
-                    data[1] = Service.__SSC_MeasurableDevice_Read("MercuryHostBoard,1");
-                    data[2] = Service.__SSC_MeasurableDevice_Read("MercuryHostBoard,2");
-                    data[3] = Service.__SSC_MeasurableDevice_Read("MercuryHostBoard,3");
+                    data[0] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                    data[1] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},1");
+                    data[2] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},2");
+                    data[3] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},3");
 
                     message = "预对准初始响应度：";
                     for (int i = 0; i < 4; i++)
@@ -134,22 +149,68 @@ namespace UserScript
                     }
                     Service.__SSC_LogInfo(message);
 
-                    string alignmentProfile = "x&y_roughScan";
-                    Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]...");
-                    Service.__SSC_DoProfileND(alignmentProfile);
+                    if (data.Max() < Conditions.Resp_After_VisionAlign)
+                    {
+                        Service.__SSC_LogError("视觉对准初始光功率过低，请检查产品。");
+                        return;
+                    }
+
+                    #region 粗耦合
+
+                    // 如果初始响应度大于阈值，跳过粗找光。
+                    if (data[0] < Conditions.Resp_After_RoughAlign)
+                    {
+                        cycles = 0;
+                        goodAlign = false;
+
+                        Service.__SSC_LogInfo("开始粗找光...");
+
+                        while (cycles < 5)
+                        {
+                            cycles++;
+
+                            alignmentProfile = "x&y_roughScan";
+                            Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                            Service.__SSC_DoProfileND(alignmentProfile);
+
+                            var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                            Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_After_RoughAlign}");
+
+                            if (resp >= Conditions.Resp_After_RoughAlign)
+                            {
+                                goodAlign = true;
+                                break;
+                            }
+                        }
+
+                        if (!goodAlign)
+                        {
+                            Service.__SSC_LogError("CH1响应度无法达到规格。");
+                            return;
+                        }
+                    }
+
+                    #endregion
+
+                    #region 精细耦合
 
                     cycles = 0;
                     goodAlign = false;
+
+                    Service.__SSC_LogInfo("开始细找光...");
+
                     while (cycles < 5)
                     {
+                        cycles++;
+
                         alignmentProfile = "x&y_detailScan";
-                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles + 1}/5...");
+                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
                         Service.__SSC_DoProfileND(alignmentProfile);
 
-                        var resp = Service.__SSC_MeasurableDevice_Read("MercuryHostBoard,0");
-                        Service.__SSC_LogInfo($"响应度：{resp}");
-                        
-                        if (resp > 2.8)
+                        var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                        Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_After_AccuracyAlign}");
+
+                        if (resp >= Conditions.Resp_After_AccuracyAlign)
                         {
                             goodAlign = true;
                             break;
@@ -162,27 +223,92 @@ namespace UserScript
                         return;
                     }
 
+                    #endregion
+
+                    #region 角度调整
 
                     cycles = 0;
                     goodAlign = false;
+
+                    Service.__SSC_LogInfo("开始角度调整...");
+
                     while (cycles < 5)
                     {
-                        alignmentProfile = "mercury";
-                        Service.__SSC_LogInfo($"执行Angle Tuning，参数[{alignmentProfile}]，Cycle {cycles + 1}/5...");
-                        var diff = (double)Service.__SSC_DoAngleTuning(alignmentProfile);
-                        Service.__SSC_LogInfo($"1-4通道峰值位置误差：{diff.ToString("F3")}um");
+                        cycles++;
 
-                        if (diff < 1)
+                        alignmentProfile = "mercury";
+                        Service.__SSC_LogInfo($"执行Angle Tuning，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                        var diff = (double)Service.__SSC_DoAngleTuning(alignmentProfile);
+                        Service.__SSC_LogInfo($"1-4通道峰值位置误差：{diff.ToString("F3")}um/目标值： {Conditions.Resp_After_AngleTuning_PeakPosDiff}");
+
+                        if (diff <= Conditions.Resp_After_AngleTuning_PeakPosDiff)
                         {
                             goodAlign = true;
                             break;
                         }
                     }
 
-                    if (goodAlign)
-                        Service.__SSC_LogInfo("耦合完成！");
+                    if (!goodAlign)
+                        Service.__SSC_LogError("1-4通道峰值位置误差无法达到规格！");
+
+                    #endregion
+
+                    #region 角度调整后精细耦合
+
+                    cycles = 0;
+                    goodAlign = false;
+
+                    Service.__SSC_LogInfo("开始Final找光...");
+
+                    while (cycles < 5)
+                    {
+                        cycles++;
+
+                        alignmentProfile = "x&y_detailScan";
+                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                        Service.__SSC_DoProfileND(alignmentProfile);
+
+                        var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                        Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_Final}");
+
+                        if (resp >= Conditions.Resp_Final)
+                        {
+                            goodAlign = true;
+                            break;
+                        }
+                    }
+
+                    if (!goodAlign)
+                    {
+                        Service.__SSC_LogError("CH1响应度无法达到规格。");
+                        return;
+                    }
+
+                    #endregion
+
+                    #region 检查四个通道响应度
+
+                    double[] finalResp = new double[4];
+                    for (int i = 0; i < 4; i++)
+                    {
+                        finalResp[i] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},{i}");
+                    }
+
+                    if (finalResp.Min() < Conditions.Resp_Final)
+                    {
+                        Service.__SSC_LogError($"最小响应度低于规格，规格：{Conditions.Resp_Final}");
+                    }
+                    else if(finalResp.Max() - finalResp.Min() > Conditions.Resp_Final_Diff)
+                    {
+                        Service.__SSC_LogError($"通道平衡无法达到规格，规格：{Conditions.Resp_Final_Diff}");
+                    }
                     else
-                        Service.__SSC_LogError("耦合失败！");
+                    {
+                        Service.__SSC_LogInfo("耦合成功!");
+                    }
+                        
+
+                    #endregion
 
                     //XScan(Service, 30, 3,  xmaxpath);
                     //YScan(Service, 30, 3, xmaxpath);
@@ -264,14 +390,24 @@ namespace UserScript
                 // ShowImage(hDisplay1, _image, null);
                 HOperatorSet.Threshold(_image, out HObject region1, 120, 255);
                 HOperatorSet.ErosionCircle(region1, out HObject region2, 5.5);
+                region1.Dispose();
                 HOperatorSet.DilationCircle(region2, out HObject region3, 5.5);
+                region2.Dispose();
                 HOperatorSet.Connection(region3, out HObject connectedregins1);
+                region3.Dispose();
                 HOperatorSet.SelectShape(connectedregins1, out HObject selectedregions, "area", "and", 100000, 10000000);
+                connectedregins1.Dispose();
                 HOperatorSet.Union1(selectedregions, out HObject regionunion);
+                selectedregions.Dispose();
                 HOperatorSet.ShapeTrans(regionunion, out HObject regiontrans, "rectangle2");
+                regionunion.Dispose();
+
                 HOperatorSet.RegionToBin(regiontrans, out HObject _transimage, 255, 0, 3840, 2748);
+
+                regiontrans.Dispose();
                 HOperatorSet.PointsFoerstner(_transimage, 1, 2, 3, 200, 0.3, "gauss", "false", out HTuple rowJunctions, out HTuple columnJunctions, out HTuple coRRJunctions,
                     out HTuple coRCJunctions, out HTuple coCCJunctions, out HTuple rowArea, out HTuple columnArea, out HTuple coRRArea, out HTuple coRCArea, out HTuple coCCArea);
+                _transimage.Dispose();
                 if (rowJunctions.Length < 2)
                 {
                     throw new Exception("awgCheck error in PointsFoerstner");
@@ -301,7 +437,7 @@ namespace UserScript
                 }
                 findline(_image, out HObject line, _row, _column, phi, 150, 150, "nearest_neighbor", 5, 20, "positive", "first");
 
-
+           
 
                 double rx = (rowJunctions[0] + rowJunctions[1]) / 2;
                 double ry = (columnJunctions[0] + columnJunctions[1]) / 2;
@@ -326,27 +462,15 @@ namespace UserScript
 
                 HObject2Bpp8(_image, out Bitmap bitmap);
                 resultImage = BitMapZd.DrawCross(bitmap, (float)finalColumn.D, (float)finalRow.D, 45, 30, 10, Color.Red);
-
-                // resultImage = BitMapZd.DrawCircle(bitmap, (float)finalColumn.D, (float)finalRow.D,50,true,10);
-                HOperatorSet.WriteImage(_image, "bmp", 0, AppDomain.CurrentDomain.BaseDirectory + "awg.bmp");
-                bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "awg1.bmp");
-                resultImage.Save(AppDomain.CurrentDomain.BaseDirectory + "awgresult.bmp");
-
+      
                 awgX = x - awgOriginX;
                 awgY = y - awgOriginY;
-                //awgX = (_awgX - awgOriginX) / 236 * 200;
-                //awgY = (_awgY - awgOriginY) / 236 * 200;
+            
                 awgAngle = (awgOriginAngle - phi) * 180 / Math.PI;
                 Console.WriteLine("awg x offset: " + awgX.ToString("F6"));
                 Console.WriteLine("awg y offset: " + awgY.ToString("F6"));
                 Console.WriteLine("awg angle offset: " + awgAngle.ToString("F6"));
-                //    RegionX regionX1 = new RegionX(corss, "green");
-                //  RegionX regionX2 = new RegionX(arrow, "green");
 
-                //   ShowImage(hDisplay1, _image, new List<RegionX>() { regionX1, regionX2 });
-                //    SetTextBox(txt_awgx, awgX.ToString("F6"));
-                //     SetTextBox(txt_awgy, awgY.ToString("F6"));
-                //    SetTextBox(txt_awgangle, awgAngle.ToString("F6"));
             }
             catch (Exception ex)
             {
