@@ -19,13 +19,17 @@ namespace UserScript
 
         static CameraBase camTop, camDown, camSide, camPd;
 
-        const double awgOriginX = 87901.4;
-        const double awgOriginY = 39897.9;
-        const double awgOriginAngle = -0.0599751;
+        const double awgOriginX = 87815.5;
+        const double awgOriginY = 39961.6;
+        const double awgOriginAngle = -0.0507382;
 
-        const double pdOriginX = 804.5;
-        const double pdOriginY = 1432.5;
-        const double pdOriginAngle = -0.0364422;
+        //const double pdOriginX = 802.8;
+        //const double pdOriginY = 1449.99;
+        //const double pdOriginAngle = -0.033321;
+
+        const double pdOriginX = 1340;
+        const double pdOriginY = 2249.72;
+        const double pdOriginAngle = 0;
 
         const string PM1 = "PM1906A 1";
 
@@ -72,269 +76,319 @@ namespace UserScript
             Camera.SetExposure("Left", 38000);
 
             HOperatorSet.ReadTuple(AppDomain.CurrentDomain.BaseDirectory + "calibratedata.tup", out calibratedata);
+            HOperatorSet.ReadShapeModel(AppDomain.CurrentDomain.BaseDirectory + "Model", out HTuple model);
             try
             {
-                Console.WriteLine("是否开始耦合? Y/[N]");
-                var echo = Console.ReadLine();
-                if (echo == "Y" || echo == "y")
+                // 抬起针筒
+                Service.__SSC_WriteIO(Conditions.IO_INJECTOR, SSC_IOStatusEnum.Disabled);
+
+                // 识别AWG角度
+                Service.__SSC_LogInfo("移动到AWG角度识别位置...");
+                Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "awg拍照位置");
+                Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "pd初始角度");
+                Thread.Sleep(100);
+
+                Service.__SSC_LogInfo("识别AWG角度...");
+                var image1 = Camera.GrabOneFrame("AWG");
+
+                HObject awgImage;
+                Bitmap2HObjectBpp32(image1, out awgImage);
+                GetAwgOffset(awgImage, ref awgX, ref awgY, ref awgAngle, out Bitmap awgimage);
+                Service.__SSC_ShowImage(awgimage);
+                awgImage.Dispose();
+                awgimage.Dispose();
+                awgImage = null;
+                awgimage = null;
+
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "R", SSC_MoveMode.REL, 100, -awgAngle);
+                Thread.Sleep(100);
+
+                // 识别PD Array角度
+                Service.__SSC_LogInfo("移动到PD Array角度识别位置...");
+                Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "pd拍照位置");
+
+                Service.__SSC_LogInfo("识别PA Array角度...");
+                var image2 = Camera.GrabOneFrame("Left");
+
+                HObject pdImage;
+                Bitmap2HObjectBpp32(image2, out pdImage);
+                GetPdOffset1(pdImage,model, ref pdX, ref pdY, ref pdAngle, out Bitmap pdimage);
+                Service.__SSC_ShowImage(pdimage);
+                pdImage.Dispose();
+                pdimage.Dispose();
+                pdImage = null;
+                pdimage = null;
+
+                offsetX = -awgX + pdX;
+                offsetY = -awgY + pdY;
+
+                Service.__SSC_LogInfo($"x 方向总偏移量 {offsetX}");
+                Service.__SSC_LogInfo($"y 方向总偏移量 {offsetY}");
+                Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "耦合高位");
+                Thread.Sleep(100);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, offsetX);
+                Thread.Sleep(100);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, offsetY);
+                Thread.Sleep(100);
+
+                //Console.WriteLine("Press any key to go to 耦合位置.");
+                //Console.ReadKey();
+                //Thread.Sleep(100);
+
+                Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "耦合位置");
+
+                Console.WriteLine("Press any key to continue.");
+                Console.ReadKey();
+
+
+                int xmaxpath = 0;
+                double[] data = new double[4];
+                data[0] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                data[1] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},1");
+                data[2] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},2");
+                data[3] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},3");
+
+                message = "预对准初始响应度：";
+                for (int i = 0; i < 4; i++)
                 {
-                    Service.__SSC_LogInfo("移动到AWG角度识别位置...");
-                    Service.__SSC_MoveToPresetPosition("CWDM4", "awg拍照位置");
-                    Service.__SSC_MoveToPresetPosition("CWDM4", "pd初始角度");
-                    Thread.Sleep(100);
-
-                    Service.__SSC_LogInfo("识别AWG角度...");
-                    var image1 = Camera.GrabOneFrame("AWG");
-
-                    HObject awgImage;
-                    Bitmap2HObjectBpp32(image1, out awgImage);
-                    GetAwgOffset(awgImage, ref awgX, ref awgY, ref awgAngle, out Bitmap awgimage);
-                    Service.__SSC_ShowImage(awgimage);
-                    awgImage.Dispose();
-                    awgimage.Dispose();
-                    awgImage = null;
-                    awgimage = null;
-
-                    Service.__SSC_MoveAxis("CWDM4", "R", SSC_MoveMode.REL, 100, -awgAngle);
-                    Thread.Sleep(100);
-
-                    Service.__SSC_LogInfo("移动到PD Array角度识别位置...");
-                    Service.__SSC_MoveToPresetPosition("CWDM4", "pd拍照位置");
-
-                    Service.__SSC_LogInfo("识别PA Array角度...");
-                    var image2 = Camera.GrabOneFrame("Left");
-
-                    HObject pdImage;
-                    Bitmap2HObjectBpp32(image2, out pdImage);
-                    GetPdOffset(pdImage, ref pdX, ref pdY, ref pdAngle, out Bitmap pdimage);
-                    Service.__SSC_ShowImage(pdimage);
-                    pdImage.Dispose();
-                    pdimage.Dispose();
-                    pdImage = null;
-                    pdimage = null;
-
-                    offsetX = -awgX + pdX;
-                    offsetY = -awgY + pdY;
-
-                    Service.__SSC_LogInfo($"x 方向总偏移量 {offsetX}");
-                    Service.__SSC_LogInfo($"y 方向总偏移量 {offsetY}");
-                    Service.__SSC_MoveToPresetPosition("CWDM4", "耦合高位");
-                    Thread.Sleep(100);
-                    Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, offsetX);
-                    Thread.Sleep(100);
-                    Service.__SSC_MoveAxis("CWDM4", "Y", SSC_MoveMode.REL, 100, offsetY);
-                    Thread.Sleep(100);
-
-                    //Console.WriteLine("Press any key to go to 耦合位置.");
-                    //Console.ReadKey();
-                    //Thread.Sleep(100);
-
-                    Service.__SSC_MoveToPresetPosition("CWDM4", "耦合位置");
-
-                    //Console.WriteLine("Press any key to continue.");
-                    //Console.ReadKey();
-
-
-                    int xmaxpath = 0;
-                    double[] data = new double[4];
-                    data[0] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
-                    data[1] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},1");
-                    data[2] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},2");
-                    data[3] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},3");
-
-                    message = "预对准初始响应度：";
-                    for (int i = 0; i < 4; i++)
-                    {
-                        message += $"[{i}]{data[i]}  ";
-                    }
-                    Service.__SSC_LogInfo(message);
-
-                    if (data.Max() < Conditions.Resp_After_VisionAlign)
-                    {
-                        Service.__SSC_LogError("视觉对准初始光功率过低，请检查产品。");
-                        return;
-                    }
-
-                    #region 粗耦合
-
-                    // 如果初始响应度大于阈值，跳过粗找光。
-                    if (data[0] < Conditions.Resp_After_RoughAlign)
-                    {
-                        cycles = 0;
-                        goodAlign = false;
-
-                        Service.__SSC_LogInfo("开始粗找光...");
-
-                        while (cycles < 5)
-                        {
-                            cycles++;
-
-                            alignmentProfile = "x&y_roughScan";
-                            Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
-                            Service.__SSC_DoProfileND(alignmentProfile);
-
-                            var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
-                            Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_After_RoughAlign}");
-
-                            if (resp >= Conditions.Resp_After_RoughAlign)
-                            {
-                                goodAlign = true;
-                                break;
-                            }
-                        }
-
-                        if (!goodAlign)
-                        {
-                            Service.__SSC_LogError("CH1响应度无法达到规格。");
-                            return;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 精细耦合
-
-                    cycles = 0;
-                    goodAlign = false;
-
-                    Service.__SSC_LogInfo("开始细找光...");
-
-                    while (cycles < 5)
-                    {
-                        cycles++;
-
-                        alignmentProfile = "x&y_detailScan";
-                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
-                        Service.__SSC_DoProfileND(alignmentProfile);
-
-                        var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
-                        Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_After_AccuracyAlign}");
-
-                        if (resp >= Conditions.Resp_After_AccuracyAlign)
-                        {
-                            goodAlign = true;
-                            break;
-                        }
-                    }
-
-                    if (!goodAlign)
-                    {
-                        Service.__SSC_LogError("CH1响应度无法达到规格。");
-                        return;
-                    }
-
-                    #endregion
-
-                    #region 角度调整
-
-                    cycles = 0;
-                    goodAlign = false;
-
-                    Service.__SSC_LogInfo("开始角度调整...");
-
-                    while (cycles < 5)
-                    {
-                        cycles++;
-
-                        alignmentProfile = "mercury";
-                        Service.__SSC_LogInfo($"执行Angle Tuning，参数[{alignmentProfile}]，Cycle {cycles}/5...");
-                        var diff = (double)Service.__SSC_DoAngleTuning(alignmentProfile);
-                        Service.__SSC_LogInfo($"1-4通道峰值位置误差：{diff.ToString("F3")}um/目标值： {Conditions.Resp_After_AngleTuning_PeakPosDiff}");
-
-                        if (diff <= Conditions.Resp_After_AngleTuning_PeakPosDiff)
-                        {
-                            goodAlign = true;
-                            break;
-                        }
-                    }
-
-                    if (!goodAlign)
-                        Service.__SSC_LogError("1-4通道峰值位置误差无法达到规格！");
-
-                    #endregion
-
-                    #region 角度调整后精细耦合
-
-                    cycles = 0;
-                    goodAlign = false;
-
-                    Service.__SSC_LogInfo("开始Final找光...");
-
-                    while (cycles < 5)
-                    {
-                        cycles++;
-
-                        alignmentProfile = "x&y_detailScan";
-                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
-                        Service.__SSC_DoProfileND(alignmentProfile);
-
-                        var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
-                        Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_Final}");
-
-                        if (resp >= Conditions.Resp_Final)
-                        {
-                            goodAlign = true;
-                            break;
-                        }
-                    }
-
-                    if (!goodAlign)
-                    {
-                        Service.__SSC_LogError("CH1响应度无法达到规格。");
-                        return;
-                    }
-
-                    #endregion
-
-                    #region 检查四个通道响应度
-
-                    double[] finalResp = new double[4];
-                    for (int i = 0; i < 4; i++)
-                    {
-                        finalResp[i] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},{i}");
-                    }
-
-                    if (finalResp.Min() < Conditions.Resp_Final)
-                    {
-                        Service.__SSC_LogError($"最小响应度低于规格，规格：{Conditions.Resp_Final}");
-                    }
-                    else if(finalResp.Max() - finalResp.Min() > Conditions.Resp_Final_Diff)
-                    {
-                        Service.__SSC_LogError($"通道平衡无法达到规格，规格：{Conditions.Resp_Final_Diff}");
-                    }
-                    else
-                    {
-                        Service.__SSC_LogInfo("耦合成功!");
-                    }
-                        
-
-                    #endregion
-
-                    //XScan(Service, 30, 3,  xmaxpath);
-                    //YScan(Service, 30, 3, xmaxpath);
-
-                    //XScan(Service, 15, 1,  xmaxpath);
-                    //YScan(Service, 15, 1, xmaxpath);
-
-                    //XScan(Service, 15, 1,  xmaxpath);
-                    //YScan(Service, 15, 1, xmaxpath);
-
-                    //double angle = 0;
-                    //AngleAdjust(Service, 30, 1, ref angle);
-                    //XScan(Service, 10, 0.5,  xmaxpath);
-                    //YScan(Service, 10, 0.5, xmaxpath);
-
-
-                    // data= HostBoard.ReadPower();
-
-
-                    //for(int i=0;i<4;i++)
-                    //{
-                    //    Console.WriteLine($"Channel{i}: " + data[i].ToString()+"\t");
-                    //}
-
-                    // Thread.Sleep(3000);
+                    message += $"[{i}]{data[i]}  ";
                 }
+                Service.__SSC_LogInfo(message);
+
+                if (data[0] < Conditions.Resp_After_VisionAlign)
+                {
+                    Service.__SSC_LogError("视觉对准初始光功率过低，请检查产品。");
+                    return;
+                }
+
+                #region 粗耦合
+
+                // 如果初始响应度大于阈值，跳过粗找光。
+                if (data[0] < Conditions.Resp_After_RoughAlign)
+                {
+                    cycles = 0;
+                    goodAlign = false;
+
+                    Service.__SSC_LogInfo("开始粗找光...");
+
+                    while (cycles < 5)
+                    {
+                        cycles++;
+
+                        alignmentProfile = "x&y_roughScan";
+                        Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                        Service.__SSC_DoProfileND(alignmentProfile);
+
+                        var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                        Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_After_RoughAlign}");
+
+                        if (resp >= Conditions.Resp_After_RoughAlign)
+                        {
+                            goodAlign = true;
+                            break;
+                        }
+                    }
+
+                    if (!goodAlign)
+                    {
+                        Service.__SSC_LogError("CH1响应度无法达到规格。");
+                        return;
+                    }
+                }
+
+                #endregion
+
+                #region 精细耦合
+
+                cycles = 0;
+                goodAlign = false;
+
+                Service.__SSC_LogInfo("开始细找光...");
+
+                while (cycles < 5)
+                {
+                    cycles++;
+
+                    alignmentProfile = "x&y_detailScan";
+                    Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                    Service.__SSC_DoProfileND(alignmentProfile);
+
+                    var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                    Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_After_AccuracyAlign}");
+
+                    if (resp >= Conditions.Resp_After_AccuracyAlign)
+                    {
+                        goodAlign = true;
+                        break;
+                    }
+                }
+
+                if (!goodAlign)
+                {
+                    Service.__SSC_LogError("CH1响应度无法达到规格。");
+                    return;
+                }
+
+                #endregion
+
+                #region 角度调整
+
+                cycles = 0;
+                goodAlign = false;
+
+                Service.__SSC_LogInfo("开始角度调整...");
+
+                while (cycles < 5)
+                {
+                    cycles++;
+
+                    alignmentProfile = "mercury";
+                    Service.__SSC_LogInfo($"执行Angle Tuning，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                    var diff = (double)Service.__SSC_DoAngleTuning(alignmentProfile);
+                    Service.__SSC_LogInfo($"1-4通道峰值位置误差：{diff.ToString("F3")}um/目标值： {Conditions.Resp_After_AngleTuning_PeakPosDiff}");
+
+                    if (Math.Abs(diff) <= Conditions.Resp_After_AngleTuning_PeakPosDiff)
+                    {
+                        goodAlign = true;
+                        break;
+                    }
+                }
+
+                if (!goodAlign)
+                    Service.__SSC_LogError("1-4通道峰值位置误差无法达到规格！");
+
+                #endregion
+
+                #region 角度调整后精细耦合
+
+                cycles = 0;
+                goodAlign = false;
+
+                Service.__SSC_LogInfo("开始Final找光...");
+
+                while (cycles < 5)
+                {
+                    cycles++;
+
+                    alignmentProfile = "x&y_detailScan";
+                    Service.__SSC_LogInfo($"执行Profile-ND，参数[{alignmentProfile}]，Cycle {cycles}/5...");
+                    Service.__SSC_DoProfileND(alignmentProfile);
+
+                    var resp = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},0");
+                    Service.__SSC_LogInfo($"响应度：{resp}/目标值: {Conditions.Resp_Final}");
+
+                    if (resp >= Conditions.Resp_Final)
+                    {
+                        goodAlign = true;
+                        break;
+                    }
+                }
+
+                if (!goodAlign)
+                {
+                    Service.__SSC_LogError("CH1响应度无法达到规格。");
+                    return;
+                }
+
+                #endregion
+
+                #region 检查四个通道响应度
+
+                double[] finalResp = new double[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    finalResp[i] = Service.__SSC_MeasurableDevice_Read($"{EQUIP_CAPTION},{i}");
+                }
+
+                if (finalResp.Min() < Conditions.Resp_Final)
+                {
+                    Service.__SSC_LogError($"最小响应度低于规格，规格：{Conditions.Resp_Final}");
+                    return;
+                }
+                else if (finalResp.Max() - finalResp.Min() > Conditions.Resp_Final_Diff)
+                {
+                    Service.__SSC_LogError($"通道平衡无法达到规格，规格：{Conditions.Resp_Final_Diff}");
+                    return;
+                }
+                else
+                {
+                    Service.__SSC_LogInfo("耦合完成!");
+                }
+
+
+                #endregion
+
+                #region 保存当前位置
+
+                Service.__SSC_LogInfo("保存当前位置...");
+
+                var final_x = Service.__SSC_GetAbsPosition(Conditions.ALIGNER, "X");
+                var final_y = Service.__SSC_GetAbsPosition(Conditions.ALIGNER, "Y");
+                var final_z = Service.__SSC_GetAbsPosition(Conditions.ALIGNER, "Z");
+
+                Service.__SSC_LogInfo($"X: {final_x}, Y: {final_y}, Z: {final_z}");
+
+                #endregion
+
+                #region 点胶
+
+                Service.__SSC_LogInfo("开始点胶...");
+
+                // 上提Z轴，AWG退到安全位置
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Z", SSC_MoveMode.REL, 20, -1000);
+
+                // 移动到点胶位置
+                Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "点胶位置");
+                Thread.Sleep(200);
+
+                // 降下针筒
+                Service.__SSC_WriteIO(Conditions.IO_INJECTOR, SSC_IOStatusEnum.Enabled);
+                Thread.Sleep(200);
+
+                // 启动点胶机
+                Service.__SSC_LogInfo("点胶...");
+
+                // 抬起针筒
+                Service.__SSC_WriteIO(Conditions.IO_INJECTOR, SSC_IOStatusEnum.Disabled);
+
+                #endregion
+
+                #region 恢复AWG位置，重新对准
+
+                Service.__SSC_LogInfo("恢复AWG位置...");
+
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.ABS, 100, final_x);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.ABS, 100, final_y);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Z", SSC_MoveMode.ABS, 100, final_z);
+
+                #endregion
+
+
+                //XScan(Service, 30, 3,  xmaxpath);
+                //YScan(Service, 30, 3, xmaxpath);
+
+                //XScan(Service, 15, 1,  xmaxpath);
+                //YScan(Service, 15, 1, xmaxpath);
+
+                //XScan(Service, 15, 1,  xmaxpath);
+                //YScan(Service, 15, 1, xmaxpath);
+
+                //double angle = 0;
+                //AngleAdjust(Service, 30, 1, ref angle);
+                //XScan(Service, 10, 0.5,  xmaxpath);
+                //YScan(Service, 10, 0.5, xmaxpath);
+
+
+                // data= HostBoard.ReadPower();
+
+
+                //for(int i=0;i<4;i++)
+                //{
+                //    Console.WriteLine($"Channel{i}: " + data[i].ToString()+"\t");
+                //}
+
+                // Thread.Sleep(3000);
+
             }
             catch (Exception ex)
             {
@@ -435,7 +489,7 @@ namespace UserScript
                     _column = columnJunctions[0] + Math.Sin(_angle) * hypotenuselength;
 
                 }
-                findline(_image, out HObject line, _row, _column, phi, 150, 150, "nearest_neighbor", 5, 20, "positive", "first");
+                findline(_image, out HObject line, _row, _column, phi, 150, 150, "nearest_neighbor", 5, 22, "positive", "first");
 
            
 
@@ -601,7 +655,7 @@ namespace UserScript
                 ho_RegionDilation.Dispose();
                 HOperatorSet.DilationCircle(ho_SelectedRegions, out ho_RegionDilation, 3.5);
                 ho_RegionFillUp.Dispose();
-                HOperatorSet.FillUpShape(ho_RegionDilation, out ho_RegionFillUp, "area", 1, 150000);
+                HOperatorSet.FillUpShape(ho_RegionDilation, out ho_RegionFillUp, "area", 1, 300000);
                 ho_ImageReduced.Dispose();
                 HOperatorSet.ReduceDomain(_image, ho_RegionFillUp, out ho_ImageReduced);
                 ho_Region1.Dispose();
@@ -622,14 +676,25 @@ namespace UserScript
                 HOperatorSet.ReduceDomain(ho_ImageReduced, ho_RegionTrans, out ho_ImageReduced1
                     );
                 ho_Region2.Dispose();
-                HOperatorSet.Threshold(ho_ImageReduced1, out ho_Region2, 128, 255);
+                HOperatorSet.Threshold(ho_ImageReduced1, out ho_Region2, 190, 255);
                 ho_RegionFillUp1.Dispose();
                 HOperatorSet.FillUp(ho_Region2, out ho_RegionFillUp1);
+
+
+
+                HOperatorSet.Connection(ho_RegionFillUp1, out HObject connection10);
+                HOperatorSet.ShapeTrans(connection10, out HObject regiontrans10, "convex");
+                HOperatorSet.ErosionCircle(regiontrans10, out HObject erosion10, 9.5);
+                HOperatorSet.SelectShape(erosion10, out HObject selectshpe10, "area", "and", 5000, 20000);
+                HOperatorSet.Union1(selectshpe10, out HObject regionunion10);
+
+
+
                 ho_ImageReduced2.Dispose();
-                HOperatorSet.ReduceDomain(ho_ImageReduced1, ho_RegionFillUp1, out ho_ImageReduced2
+                HOperatorSet.ReduceDomain(ho_ImageReduced1, regionunion10, out ho_ImageReduced2
                     );
                 ho_Region3.Dispose();
-                HOperatorSet.Threshold(ho_ImageReduced2, out ho_Region3, 0, 128);
+                HOperatorSet.Threshold(ho_ImageReduced2, out ho_Region3, 100, 160);
                 ho_RegionErosion2.Dispose();
                 HOperatorSet.ErosionCircle(ho_Region3, out ho_RegionErosion2, 1.5);
                 ho_ConnectedRegions2.Dispose();
@@ -690,6 +755,56 @@ namespace UserScript
                 ho_RegionUnion1.Dispose();
                 ho_RegionTrans2.Dispose();
                 ho_Cross.Dispose();
+                //  RegionX regionX1 = new RegionX(corss, "green");
+                //  RegionX regionX2 = new RegionX(arrow, "green");
+
+                //   ShowImage(hDisplay1, _image, new List<RegionX>() { regionX1, regionX2 });
+                //   SetTextBox(txt_pdx, pdX.ToString("F6"));
+                //    SetTextBox(txt_pdy, pdY.ToString("F6"));
+                //    SetTextBox(txt_pdangle, pdAngle.ToString("F6"));
+
+                //     offsetX = awgX + pdX;
+                //     offsetY = awgY + pdY;
+
+                //     SetTextBox(txt_x, offsetX.ToString("F6"));
+                //     SetTextBox(txt_y, offsetY.ToString("F6"));
+
+            }
+            catch (Exception ex)
+            {
+                HOperatorSet.WriteImage(_image, "bmp", 0, AppDomain.CurrentDomain.BaseDirectory + "pd.bmp");
+
+                throw ex;
+                //  MessageBox.Show(ex.Message);
+            }
+        }
+        static void GetPdOffset1(HObject _image,HTuple model, ref double pdX, ref double pdY, ref double pdAngle, out Bitmap pdresult)
+        {
+            try
+            {
+                HOperatorSet.FindShapeModel(_image, model, -45, 90, 0.5, 1, 0.2, "least_squares", 0,0.5, out HTuple hv_Row, out HTuple hv_Column, out HTuple angle, out HTuple score);
+                //     _image = camTop.SnapShot();
+              
+
+
+
+
+                //  hv_Value = (hv_Value * 180) / 3.1415926;
+
+                HObject2Bpp8(_image, out Bitmap bitmap);
+                pdresult = BitMapZd.DrawCross(bitmap, (float)hv_Column.D, (float)hv_Row.D, 45, 30, 10, Color.Red);
+
+
+                pdX = (pdOriginX - hv_Row) / 236 * 200;
+                pdY = (pdOriginY - hv_Column) / 236 * 200;
+                pdAngle = (pdOriginAngle - angle) * 180 / Math.PI;
+
+                Console.WriteLine("pd x offset: " + pdX.ToString("F6"));
+                Console.WriteLine("pd y offset: " + pdY.ToString("F6"));
+                Console.WriteLine("pd angle offset: " + pdAngle.ToString("F6"));
+
+
+              
                 //  RegionX regionX1 = new RegionX(corss, "green");
                 //  RegionX regionX2 = new RegionX(arrow, "green");
 
@@ -1012,14 +1127,14 @@ namespace UserScript
             {
                 Console.WriteLine("XScan");
 
-                Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, -halflenth);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, -halflenth);
                 double number = halflenth / offset * 2;
                 double[,] data = new double[(int)number, 4];
                 int MaxDataIndex = 0;
                 double MaxData = 0;
                 for (int i = 0; i < number; i++)
                 {
-                    Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, offset);
+                    Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, offset);
                     ///读取功率计的值
                     ///比较四个通道的读值，选择功率最大的，
                     ///
@@ -1035,7 +1150,7 @@ namespace UserScript
                     }
 
                 }
-                Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, -offset * (number - MaxDataIndex));//移动到最大值处
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, -offset * (number - MaxDataIndex));//移动到最大值处
 
             }
             catch (Exception ex)
@@ -1052,14 +1167,14 @@ namespace UserScript
             try
             {
                 Console.WriteLine("YScan");
-                Service.__SSC_MoveAxis("CWDM4", "Y", SSC_MoveMode.REL, 100, -halflenth);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, -halflenth);
                 double number = halflenth / offset * 2;
                 double[,] data = new double[(int)number, 4];
                 int MaxDataIndex = 0;
                 double MaxData = 0;
                 for (int i = 0; i < number; i++)
                 {
-                    Service.__SSC_MoveAxis("CWDM4", "Y", SSC_MoveMode.REL, 100, offset);
+                    Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, offset);
                     ///读取功率计的值
 
                     double[] d = HostBoard.ReadPower();
@@ -1073,7 +1188,7 @@ namespace UserScript
                         MaxDataIndex = i;
                     }
                 }
-                Service.__SSC_MoveAxis("CWDM4", "Y", SSC_MoveMode.REL, 100, -offset * (number - MaxDataIndex));//移动到最大值处
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, -offset * (number - MaxDataIndex));//移动到最大值处
             }
             catch (Exception ex)
             {
@@ -1089,7 +1204,7 @@ namespace UserScript
             try
             {
                 Console.WriteLine("开始角度补偿");
-                Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, -halflenth);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, -halflenth);
                 uint number = halflenth / offset * 2;
                 double[,] data = new double[number, 4];
                 int FirstPathMaxDataIndex = 0;//第一通道最大值的index
@@ -1098,7 +1213,7 @@ namespace UserScript
                 double ForthPathMaxData;
                 for (int i = 0; i < number; i++)
                 {
-                    Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, offset);
+                    Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, offset);
                     ///读取功率计的值
                     double[] d = HostBoard.ReadPower();
                     data[i, 0] = d[0];
@@ -1125,9 +1240,9 @@ namespace UserScript
                 Console.WriteLine($"peakDiff：" + (FirstPathMaxDataIndex - ForthPathMaxDataIndex));
 
                 Console.WriteLine($"角度预测：" + angle);
-                Service.__SSC_MoveAxis("CWDM4", "X", SSC_MoveMode.REL, 100, -offset * (number - (FirstPathMaxDataIndex + ForthPathMaxDataIndex) / 2));//移动到最大值处
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, -offset * (number - (FirstPathMaxDataIndex + ForthPathMaxDataIndex) / 2));//移动到最大值处
 
-                Service.__SSC_MoveAxis("CWDM4", "R", SSC_MoveMode.REL, 100, -angle);//移动到最大值处
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "R", SSC_MoveMode.REL, 100, -angle);//移动到最大值处
 
             }
             catch (Exception ex)

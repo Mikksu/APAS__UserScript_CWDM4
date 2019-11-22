@@ -9,6 +9,16 @@ namespace UserScript
     public class Conditions
     {
         /// <summary>
+        /// 耦合电动轴的名称。
+        /// </summary>
+        public const string ALIGNER = "CWDM4";
+
+        /// <summary>
+        /// 控制针筒上下的IO名称。
+        /// </summary>
+        public const string IO_INJECTOR = "Injector";
+
+        /// <summary>
         /// 视觉对准最小响应度。
         /// 小于该值表示视觉对准失败。
         /// </summary>
