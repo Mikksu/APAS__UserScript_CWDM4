@@ -137,6 +137,12 @@ namespace UserScript.Service {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ISystemService/__SSC_MoveAxis", ReplyAction="http://tempuri.org/ISystemService/__SSC_MoveAxisResponse")]
         System.Threading.Tasks.Task @__SSC_MoveAxisAsync(string Aligner, string Axis, UserScript.Service.SSC_MoveMode Mode, int Speed, double Distance);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ISystemService/__SSC_FastMoveAxis", ReplyAction="http://tempuri.org/ISystemService/__SSC_FastMoveAxisResponse")]
+        void @__SSC_FastMoveAxis(string Aligner, string Axis, UserScript.Service.SSC_MoveMode Mode, int Speed, double Distance);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ISystemService/__SSC_FastMoveAxis", ReplyAction="http://tempuri.org/ISystemService/__SSC_FastMoveAxisResponse")]
+        System.Threading.Tasks.Task @__SSC_FastMoveAxisAsync(string Aligner, string Axis, UserScript.Service.SSC_MoveMode Mode, int Speed, double Distance);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ISystemService/__SSC_MoveToPresetPosition", ReplyAction="http://tempuri.org/ISystemService/__SSC_MoveToPresetPositionResponse")]
         void @__SSC_MoveToPresetPosition(string MotionComp, string Profile);
         
@@ -410,6 +416,14 @@ namespace UserScript.Service {
         
         public System.Threading.Tasks.Task @__SSC_MoveAxisAsync(string Aligner, string Axis, UserScript.Service.SSC_MoveMode Mode, int Speed, double Distance) {
             return base.Channel.@__SSC_MoveAxisAsync(Aligner, Axis, Mode, Speed, Distance);
+        }
+        
+        public void @__SSC_FastMoveAxis(string Aligner, string Axis, UserScript.Service.SSC_MoveMode Mode, int Speed, double Distance) {
+            base.Channel.@__SSC_FastMoveAxis(Aligner, Axis, Mode, Speed, Distance);
+        }
+        
+        public System.Threading.Tasks.Task @__SSC_FastMoveAxisAsync(string Aligner, string Axis, UserScript.Service.SSC_MoveMode Mode, int Speed, double Distance) {
+            return base.Channel.@__SSC_FastMoveAxisAsync(Aligner, Axis, Mode, Speed, Distance);
         }
         
         public void @__SSC_MoveToPresetPosition(string MotionComp, string Profile) {

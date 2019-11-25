@@ -21,29 +21,10 @@ namespace UserScript
     {
         static void Main(string[] args)
         {
-            CamRAC.CamRemoteAccessContractClient camClient = new CamRAC.CamRemoteAccessContractClient();
-            //camClient.Open();
-            //var binBmp = camClient.GrabOneFrame("Rear");
-            
-            //camClient.Close();
+            // Camera Remote Access Service.
+            var camClient = new CamRAC.CamRemoteAccessContractClient();
 
-            ////HOperatorSet.ReadImage(out HObject image, "C:\\Users\\user\\Desktop\\awg01.bmp");
-            ////HObject2Bpp8(image, out Bitmap bitmap);
-            ////Bitmap iii = BitMapZd.DrawCross(bitmap, 100, 100, 30);
-            //binBmp.Save("d:\\123.bmp");
-
-
-
-
-
-            //return;
-
-
-
-
-
-
-
+            // APAS Remote Access Service.
             var client = new SystemServiceClient();
 
             try

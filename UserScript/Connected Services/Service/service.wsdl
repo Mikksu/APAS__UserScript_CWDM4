@@ -66,6 +66,12 @@
   <wsdl:message name="ISystemService___SSC_MoveAxis_OutputMessage">
     <wsdl:part name="parameters" element="tns:__SSC_MoveAxisResponse" />
   </wsdl:message>
+  <wsdl:message name="ISystemService___SSC_FastMoveAxis_InputMessage">
+    <wsdl:part name="parameters" element="tns:__SSC_FastMoveAxis" />
+  </wsdl:message>
+  <wsdl:message name="ISystemService___SSC_FastMoveAxis_OutputMessage">
+    <wsdl:part name="parameters" element="tns:__SSC_FastMoveAxisResponse" />
+  </wsdl:message>
   <wsdl:message name="ISystemService___SSC_MoveToPresetPosition_InputMessage">
     <wsdl:part name="parameters" element="tns:__SSC_MoveToPresetPosition" />
   </wsdl:message>
@@ -219,6 +225,10 @@
       <wsdl:input wsaw:Action="http://tempuri.org/ISystemService/__SSC_MoveAxis" message="tns:ISystemService___SSC_MoveAxis_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/ISystemService/__SSC_MoveAxisResponse" message="tns:ISystemService___SSC_MoveAxis_OutputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="__SSC_FastMoveAxis">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISystemService/__SSC_FastMoveAxis" message="tns:ISystemService___SSC_FastMoveAxis_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISystemService/__SSC_FastMoveAxisResponse" message="tns:ISystemService___SSC_FastMoveAxis_OutputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="__SSC_MoveToPresetPosition">
       <wsdl:input wsaw:Action="http://tempuri.org/ISystemService/__SSC_MoveToPresetPosition" message="tns:ISystemService___SSC_MoveToPresetPosition_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/ISystemService/__SSC_MoveToPresetPositionResponse" message="tns:ISystemService___SSC_MoveToPresetPosition_OutputMessage" />
@@ -369,6 +379,15 @@
     </wsdl:operation>
     <wsdl:operation name="__SSC_MoveAxis">
       <soap12:operation soapAction="http://tempuri.org/ISystemService/__SSC_MoveAxis" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="__SSC_FastMoveAxis">
+      <soap12:operation soapAction="http://tempuri.org/ISystemService/__SSC_FastMoveAxis" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

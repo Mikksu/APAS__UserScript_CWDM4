@@ -22,7 +22,7 @@ namespace UserScript
         /// 视觉对准最小响应度。
         /// 小于该值表示视觉对准失败。
         /// </summary>
-        public const double Resp_After_VisionAlign = 1.5;
+        public const double Resp_After_VisionAlign = 0.8;
 
         /// <summary>
         /// 粗找光完成后的最小响应度。

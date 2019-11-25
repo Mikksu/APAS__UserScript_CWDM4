@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using UserScript.CamRAC;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace UserScript
 {
@@ -19,17 +20,17 @@ namespace UserScript
 
         static CameraBase camTop, camDown, camSide, camPd;
 
-        const double awgOriginX = 87815.5;
-        const double awgOriginY = 39961.6;
-        const double awgOriginAngle = -0.0507382;
+        const double awgOriginX = 87748;
+        const double awgOriginY = 40182.3;
+        const double awgOriginAngle = 0.00199097;
 
         //const double pdOriginX = 802.8;
         //const double pdOriginY = 1449.99;
         //const double pdOriginAngle = -0.033321;
 
-        const double pdOriginX = 1340;
-        const double pdOriginY = 2249.72;
-        const double pdOriginAngle = 0;
+        const double pdOriginX = 913.254;
+        const double pdOriginY = 1494.9;
+        const double pdOriginAngle = 0.007;
 
         const string PM1 = "PM1906A 1";
 
@@ -73,10 +74,11 @@ namespace UserScript
             double offsetX, offsetY, offsetAngle;
 
             Camera.SetExposure("AWG", 30000);
-            Camera.SetExposure("Left", 38000);
+            Camera.SetExposure("Left", 16000);
+
 
             HOperatorSet.ReadTuple(AppDomain.CurrentDomain.BaseDirectory + "calibratedata.tup", out calibratedata);
-            HOperatorSet.ReadShapeModel(AppDomain.CurrentDomain.BaseDirectory + "Model", out HTuple model);
+         //   HOperatorSet.ReadShapeModel(AppDomain.CurrentDomain.BaseDirectory + "Model", out HTuple model);
             try
             {
                 // 抬起针筒
@@ -106,34 +108,44 @@ namespace UserScript
                 // 识别PD Array角度
                 Service.__SSC_LogInfo("移动到PD Array角度识别位置...");
                 Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "pd拍照位置");
-
+                Thread.Sleep(100);
                 Service.__SSC_LogInfo("识别PA Array角度...");
                 var image2 = Camera.GrabOneFrame("Left");
 
                 HObject pdImage;
                 Bitmap2HObjectBpp32(image2, out pdImage);
-                GetPdOffset1(pdImage,model, ref pdX, ref pdY, ref pdAngle, out Bitmap pdimage);
+                GetPdOffset(pdImage, ref pdX, ref pdY, ref pdAngle, out Bitmap pdimage);
                 Service.__SSC_ShowImage(pdimage);
                 pdImage.Dispose();
                 pdimage.Dispose();
                 pdImage = null;
                 pdimage = null;
 
-                offsetX = -awgX + pdX;
-                offsetY = -awgY + pdY;
+                offsetX = -awgX - pdX;
+                offsetY = -awgY - pdY;
 
                 Service.__SSC_LogInfo($"x 方向总偏移量 {offsetX}");
                 Service.__SSC_LogInfo($"y 方向总偏移量 {offsetY}");
                 Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "耦合高位");
                 Thread.Sleep(100);
-                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, offsetX);
-                Thread.Sleep(100);
-                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, offsetY);
+
+
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, -awgX);
                 Thread.Sleep(100);
 
-                //Console.WriteLine("Press any key to go to 耦合位置.");
-                //Console.ReadKey();
-                //Thread.Sleep(100);
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "X", SSC_MoveMode.REL, 100, -pdX);
+                Thread.Sleep(100);
+
+
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, -awgY);
+                Thread.Sleep(100);
+
+                Service.__SSC_MoveAxis(Conditions.ALIGNER, "Y", SSC_MoveMode.REL, 100, -pdY);
+                Thread.Sleep(100);
+
+                Console.WriteLine("Press any key to go to 耦合位置.");
+                Console.ReadKey();
+                Thread.Sleep(100);
 
                 Service.__SSC_MoveToPresetPosition(Conditions.ALIGNER, "耦合位置");
 
@@ -329,7 +341,7 @@ namespace UserScript
                 Service.__SSC_LogInfo($"X: {final_x}, Y: {final_y}, Z: {final_z}");
 
                 #endregion
-
+                return;
                 #region 点胶
 
                 Service.__SSC_LogInfo("开始点胶...");
@@ -512,7 +524,8 @@ namespace UserScript
 
                 HOperatorSet.AffineTransPoint2d(calibratedata, finalRow, finalColumn, out HTuple x, out HTuple y);
 
-
+                Console.WriteLine($"awg row value{finalRow.D}");
+                Console.WriteLine($"awg column value{finalColumn.D}");
 
                 HObject2Bpp8(_image, out Bitmap bitmap);
                 resultImage = BitMapZd.DrawCross(bitmap, (float)finalColumn.D, (float)finalRow.D, 45, 30, 10, Color.Red);
@@ -660,13 +673,14 @@ namespace UserScript
                 HOperatorSet.ReduceDomain(_image, ho_RegionFillUp, out ho_ImageReduced);
                 ho_Region1.Dispose();
                 HOperatorSet.Threshold(ho_ImageReduced, out ho_Region1, 240, 255);
+                HOperatorSet.WriteImage(ho_ImageReduced, "bmp", 0, AppDomain.CurrentDomain.BaseDirectory + "01.bmp");
                 ho_RegionErosion1.Dispose();
-                HOperatorSet.ErosionCircle(ho_Region1, out ho_RegionErosion1, 5.5);
+                HOperatorSet.ErosionCircle(ho_Region1, out ho_RegionErosion1, 1.5);
                 ho_ConnectedRegions1.Dispose();
                 HOperatorSet.Connection(ho_RegionErosion1, out ho_ConnectedRegions1);
                 ho_SelectedRegions1.Dispose();
                 HOperatorSet.SelectShape(ho_ConnectedRegions1, out ho_SelectedRegions1, "area",
-                    "and", 500, 99999);
+                    "and", 700, 99999);
                 ho_RegionUnion.Dispose();
                 HOperatorSet.Union1(ho_SelectedRegions1, out ho_RegionUnion);
                 ho_RegionTrans.Dispose();
@@ -675,35 +689,33 @@ namespace UserScript
                 ho_ImageReduced1.Dispose();
                 HOperatorSet.ReduceDomain(ho_ImageReduced, ho_RegionTrans, out ho_ImageReduced1
                     );
+                HOperatorSet.WriteImage(ho_ImageReduced1, "bmp", 0, AppDomain.CurrentDomain.BaseDirectory + "02.bmp");
+
                 ho_Region2.Dispose();
-                HOperatorSet.Threshold(ho_ImageReduced1, out ho_Region2, 190, 255);
+                HOperatorSet.Threshold(ho_ImageReduced1, out ho_Region2, 148, 255);
+
                 ho_RegionFillUp1.Dispose();
                 HOperatorSet.FillUp(ho_Region2, out ho_RegionFillUp1);
 
 
 
-                HOperatorSet.Connection(ho_RegionFillUp1, out HObject connection10);
-                HOperatorSet.ShapeTrans(connection10, out HObject regiontrans10, "convex");
-                HOperatorSet.ErosionCircle(regiontrans10, out HObject erosion10, 9.5);
-                HOperatorSet.SelectShape(erosion10, out HObject selectshpe10, "area", "and", 5000, 20000);
-                HOperatorSet.Union1(selectshpe10, out HObject regionunion10);
-
-
 
                 ho_ImageReduced2.Dispose();
-                HOperatorSet.ReduceDomain(ho_ImageReduced1, regionunion10, out ho_ImageReduced2
+                HOperatorSet.ReduceDomain(ho_ImageReduced1, ho_RegionFillUp1, out ho_ImageReduced2
                     );
+
                 ho_Region3.Dispose();
-                HOperatorSet.Threshold(ho_ImageReduced2, out ho_Region3, 100, 160);
+                HOperatorSet.Threshold(ho_ImageReduced2, out ho_Region3, 0, 140);
                 ho_RegionErosion2.Dispose();
                 HOperatorSet.ErosionCircle(ho_Region3, out ho_RegionErosion2, 1.5);
                 ho_ConnectedRegions2.Dispose();
                 HOperatorSet.Connection(ho_RegionErosion2, out ho_ConnectedRegions2);
                 ho_SelectedRegions2.Dispose();
                 HOperatorSet.SelectShape(ho_ConnectedRegions2, out ho_SelectedRegions2, "area",
-                    "and", 100, 1000);
+                    "and", 250, 800);
+                HOperatorSet.SelectShape(ho_SelectedRegions2, out HObject  ho_SelectedRegions3, "outer_radius", "and", 10, 25);
                 ho_RegionTrans1.Dispose();
-                HOperatorSet.ShapeTrans(ho_SelectedRegions2, out ho_RegionTrans1, "outer_circle");
+                HOperatorSet.ShapeTrans(ho_SelectedRegions3, out ho_RegionTrans1, "outer_circle");
 
                 ho_RegionUnion1.Dispose();
                 HOperatorSet.Union1(ho_RegionTrans1, out ho_RegionUnion1);
@@ -720,9 +732,11 @@ namespace UserScript
                 HObject2Bpp8(_image, out Bitmap bitmap);
                 pdresult = BitMapZd.DrawCross(bitmap, (float)hv_Column.D, (float)hv_Row.D, 45, 30, 10, Color.Red);
 
+                Console.WriteLine($"pd row value{hv_Row.D}");
+                Console.WriteLine($"pd column value{hv_Column.D}");
 
-                pdX = (pdOriginX - hv_Row) / 236 * 200;
-                pdY = (pdOriginY - hv_Column) / 236 * 200;
+                pdX = (hv_Row- pdOriginX) / 236 * 200;
+                pdY = (hv_Column- pdOriginY) / 236 * 200;
                 pdAngle = (pdOriginAngle - hv_Value) * 180 / Math.PI;
 
                 Console.WriteLine("pd x offset: " + pdX.ToString("F6"));
@@ -778,57 +792,7 @@ namespace UserScript
                 //  MessageBox.Show(ex.Message);
             }
         }
-        static void GetPdOffset1(HObject _image,HTuple model, ref double pdX, ref double pdY, ref double pdAngle, out Bitmap pdresult)
-        {
-            try
-            {
-                HOperatorSet.FindShapeModel(_image, model, -45, 90, 0.5, 1, 0.2, "least_squares", 0,0.5, out HTuple hv_Row, out HTuple hv_Column, out HTuple angle, out HTuple score);
-                //     _image = camTop.SnapShot();
-              
-
-
-
-
-                //  hv_Value = (hv_Value * 180) / 3.1415926;
-
-                HObject2Bpp8(_image, out Bitmap bitmap);
-                pdresult = BitMapZd.DrawCross(bitmap, (float)hv_Column.D, (float)hv_Row.D, 45, 30, 10, Color.Red);
-
-
-                pdX = (pdOriginX - hv_Row) / 236 * 200;
-                pdY = (pdOriginY - hv_Column) / 236 * 200;
-                pdAngle = (pdOriginAngle - angle) * 180 / Math.PI;
-
-                Console.WriteLine("pd x offset: " + pdX.ToString("F6"));
-                Console.WriteLine("pd y offset: " + pdY.ToString("F6"));
-                Console.WriteLine("pd angle offset: " + pdAngle.ToString("F6"));
-
-
-              
-                //  RegionX regionX1 = new RegionX(corss, "green");
-                //  RegionX regionX2 = new RegionX(arrow, "green");
-
-                //   ShowImage(hDisplay1, _image, new List<RegionX>() { regionX1, regionX2 });
-                //   SetTextBox(txt_pdx, pdX.ToString("F6"));
-                //    SetTextBox(txt_pdy, pdY.ToString("F6"));
-                //    SetTextBox(txt_pdangle, pdAngle.ToString("F6"));
-
-                //     offsetX = awgX + pdX;
-                //     offsetY = awgY + pdY;
-
-                //     SetTextBox(txt_x, offsetX.ToString("F6"));
-                //     SetTextBox(txt_y, offsetY.ToString("F6"));
-
-            }
-            catch (Exception ex)
-            {
-                HOperatorSet.WriteImage(_image, "bmp", 0, AppDomain.CurrentDomain.BaseDirectory + "pd.bmp");
-
-                throw ex;
-                //  MessageBox.Show(ex.Message);
-            }
-        }
-
+        
         static void gen_arrow_contour_xld(
             out HObject ho_Arrow, 
             HTuple hv_Row1, 
@@ -1303,7 +1267,14 @@ namespace UserScript
             }
         }
 
+
+
+        static void BenchMarkSet(SystemServiceClient Service, CamRemoteAccessContractClient Camera)
+        {
+           
+        }
         #endregion
 
     }
+   
 }

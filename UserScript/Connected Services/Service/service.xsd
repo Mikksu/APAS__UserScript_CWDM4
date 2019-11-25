@@ -98,6 +98,22 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="__SSC_FastMoveAxis">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="Aligner" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Axis" nillable="true" type="xs:string" />
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Mode" type="q2:SSC_MoveMode" />
+        <xs:element minOccurs="0" name="Speed" type="xs:int" />
+        <xs:element minOccurs="0" name="Distance" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="__SSC_FastMoveAxisResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="__SSC_MoveToPresetPosition">
     <xs:complexType>
       <xs:sequence>
@@ -129,7 +145,7 @@
   <xs:element name="__SSC_ShowImage">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/System.Drawing" minOccurs="0" name="Image" nillable="true" type="q2:Bitmap" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/System.Drawing" minOccurs="0" name="Image" nillable="true" type="q3:Bitmap" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -142,14 +158,14 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="IO" nillable="true" type="xs:string" />
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="IOType" type="q3:SSC_IOTypeEnum" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="IOType" type="q4:SSC_IOTypeEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="__SSC_ReadIOResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_ReadIOResult" type="q4:SSC_IOStatusEnum" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_ReadIOResult" type="q5:SSC_IOStatusEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -157,7 +173,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="IO" nillable="true" type="xs:string" />
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Status" type="q5:SSC_IOStatusEnum" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Status" type="q6:SSC_IOStatusEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -320,7 +336,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Unit" type="q6:SSC_PMUnitEnum" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Unit" type="q7:SSC_PMUnitEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -339,7 +355,7 @@
   <xs:element name="__SSC_Powermeter_GetUnitResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_Powermeter_GetUnitResult" type="q7:SSC_PMUnitEnum" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_Powermeter_GetUnitResult" type="q8:SSC_PMUnitEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -347,7 +363,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="Caption" nillable="true" type="xs:string" />
-        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Range" type="q8:SSC_PMRangeEnum" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="Range" type="q9:SSC_PMRangeEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -366,7 +382,7 @@
   <xs:element name="__SSC_Powermeter_GetRangeResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_Powermeter_GetRangeResult" type="q9:SSC_PMRangeEnum" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/SystemServiceContract.Core" minOccurs="0" name="__SSC_Powermeter_GetRangeResult" type="q10:SSC_PMRangeEnum" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
